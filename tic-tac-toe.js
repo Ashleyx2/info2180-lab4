@@ -1,77 +1,72 @@
-let counter = 1;
-let boxes = ["", "", "", "", "", "", "", "", ""];
+let square_array = Array(9).fill("#");
+let mssg;
 
-function init() {
-  var board = document.getElementById("board");
-  var child = board.children;
-  for (var i = 0; i <= child.length - 1; i++) {
-    child[i].classList.add("square");
-    child[i].setAttribute("id", "box" + i);
-    child[i].addEventListener("click", e => {
-      let clicked = e.target.id;
-      let box = document.getElementById(clicked);
-      if (box.innerHTML.trim() == "") {
-        decide(box, clicked);
-        counter++;
-      }
+window.addEventListener('DOMContentLoaded', (event) => {
+    let board = document.getElementById("board");
+    const square = board.querySelectorAll("div");
+    mssg = document.querySelector("#status");
+    square.forEach((i)=>{
+        i.className = "square";
     });
-  }
-}
+    let square_state = true;
+    square.forEach((i,index) => {
+        i.addEventListener("click", () => {
+            if(!(i.getAttribute("class").includes("X") || i.getAttribute("class").includes("O"))){
+                if(square_state === true){
+                    i.setAttribute("class", "square X");
+                    i.textContent = "X";
+                    square_state = false;
+                    square_array[index] = "X";
+                }
+                else if(square_state === false){
+                    i.setAttribute("class", "square O");
+                    i.textContent = "O";
+                    square_state = true;
+                    square_array[index] = "O";
+                }
+            }
 
-function decide(box, id) {
-  let tracker = {};
-  let i = id[3];
-  if (counter % 2 == 0) {
-    box.innerHTML = "O";
-    box.classList.add("O");
-    tracker[id] = counter;
-    boxes[i] = "O";
-  } else {
-    box.innerHTML = "X";
-    box.classList.add("X");
-    tracker[id] = counter;
-    boxes[i] = "X";
-  }
-  tester();
-}
+            winnerWinner(square_array);
+        });
 
-function tester() {
-  const status = document.getElementById("status");
-  let row1 = [boxes[0], boxes[1], boxes[2]];
-  let row2 = [boxes[3], boxes[4], boxes[5]];
-  let row3 = [boxes[6], boxes[7], boxes[8]];
-  let col1 = [boxes[0], boxes[3], boxes[6]];
-  let col2 = [boxes[1], boxes[4], boxes[7]];
-  let col3 = [boxes[2], boxes[5], boxes[8]];
-  let diag1 = [boxes[0], boxes[4], boxes[8]];
-  let diag2 = [boxes[2], boxes[4], boxes[6]];
+        i.addEventListener("mouseover", () => {
+            i.classList.add("hover");
+        });
+        i.addEventListener("mouseleave", () => {
+            i.classList.remove("hover");
+        });
+    });
 
-  let lines = [row1, row2, row3, col1, col2, col3, diag1, diag2];
-  lines.forEach((item) => {
-    if (item[0] + item[1] + item[2] == "XXX") {
-        status.innerHTML = "Player 1 wins!";
-    } else if (item[0] + item[1] + item[2] == "OOO") {
-      status.innerHTML = "Player 2 wins!";
-    }
-  });
-}
+    document.querySelector("button").addEventListener("click", () => {
+        square.forEach((i, index) =>{
+            i.textContent = "";
+            square_array[index] = "#";
+            i.setAttribute("class", "square");
+        });
+        square_state = true;
+        mssg.classList.remove("you-won");
+        mssg.textContent = "Move your mouse over a square and click to play an X or an O.";
+    });
 
-function Reset(){
-    var board = document.querySelector("#board");
-    var child = board.querySelectorAll("div");
-    var botton = document.querySelector("button");
-    botton.addEventListener("click",() => {
-        counter = 1;
-        boxes = ["", "", "", "", "", "", "", "", ""];
-        for (var i = 0; i <= child.length - 1; i++) {
-            child[i].innerHTML = "";
-            child[i].classList.remove("O");
-            child[i].classList.remove("X");
+});
+
+const winnerWinner = (array) => {
+
+    first = [array[0], array[1], array[2]];
+    second = [array[3], array[4], array[5]];
+    third = [array[6], array[7], array[8]];
+    fourth = [array[0], array[3], array[6]];
+    fifth = [array[1], array[4], array[7]];
+    sixth = [array[2], array[5], array[8]];
+    seventh = [array[0], array[4], array[8]];
+    eighth = [array[2], array[4], array[6]];
+
+    REcheck = [first, second, third, fourth, fifth, sixth, seventh, eighth]
+
+    REcheck.forEach((arrCheck) => {
+        if ((arrCheck[0] === arrCheck[1]) && (arrCheck[1] === arrCheck[2]) && (arrCheck[0] === arrCheck[2]) && (arrCheck[2] !== "#")){
+            mssg.setAttribute("class", "you-won");
+            mssg.innerHTML = `Congratulations! ${(arrCheck[0])} is the Winner!`;
         }
-    })
+    });
 }
-
-window.onload = function() {
-  init();
-  Reset();
-};
